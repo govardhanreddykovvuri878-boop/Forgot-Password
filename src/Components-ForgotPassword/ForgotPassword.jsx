@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import "./ForgotPassword.css";
 
 import Logo from "../assets/Logo.png";
@@ -14,45 +14,6 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [scale, setScale] = useState(1);
-  const pageRef = useRef(null);
-
-  useEffect(() => {
-    const parent = pageRef.current?.parentElement;
-    if (!parent) return;
-
-    const updateScale = () => {
-      const width = parent.clientWidth;
-      setScale(
-        window.matchMedia("(min-width: 1511px)").matches && width < 1920
-          ? width / 1920
-          : 1
-      );
-    };
-
-    updateScale();
-
-    const observer = new ResizeObserver(updateScale);
-    observer.observe(parent);
-    window.addEventListener("resize", updateScale);
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", updateScale);
-    };
-  }, []);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const value = email.trim();
-
-    if (!value) return setError("Please enter your email address.");
-    if (!EMAIL_REGEX.test(value))
-      return setError("Please enter a valid email address.");
-
-    setError("");
-    setSuccess(true);
-  };
 
   const handleChange = (e) => {
     setEmail(e.target.value);
@@ -60,12 +21,25 @@ const ForgotPassword = () => {
     setSuccess(false);
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const value = email.trim();
+
+    if (!value) {
+      setError("Please enter your email address.");
+      return;
+    }
+    if (!EMAIL_REGEX.test(value)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    setError("");
+    setSuccess(true);
+  };
+
   return (
-    <div
-      ref={pageRef}
-      className={`ForgotPassword-page${scale < 1 ? " ForgotPassword-pageScaled" : ""}`}
-      style={scale < 1 ? { zoom: scale } : undefined}
-    >
+    <div className="ForgotPassword-page">
       <section className="ForgotPassword-leftSection">
         <header className="ForgotPassword-header">
           <img className="ForgotPassword-logo" src={Logo} alt="" />
@@ -98,12 +72,8 @@ const ForgotPassword = () => {
         />
 
         <div className="ForgotPassword-quote">
-          <img
-            className="ForgotPassword-quoteIcon"
-            src={ShieldIcon}
-            alt=""
-          />
-          <div className="ForgotPassword-quoteText">
+          <img className="ForgotPassword-quoteIcon" src={ShieldIcon} alt="" />
+          <div>
             <p className="ForgotPassword-quoteMain">
               "A unified platform that simplifies training, placements, and
               recruitment management."
@@ -119,7 +89,6 @@ const ForgotPassword = () => {
       <section className="ForgotPassword-formSection">
         <form className="ForgotPassword-form" onSubmit={handleSubmit} noValidate>
           <h2 className="ForgotPassword-formHeading">Forgot Password ?</h2>
-
           <p className="ForgotPassword-formDescription">
             Enter your registered ID or email to receive a password reset link.
           </p>
@@ -128,7 +97,6 @@ const ForgotPassword = () => {
             <label className="ForgotPassword-emailLabel" htmlFor="email">
               Email Address
             </label>
-
             <div className="ForgotPassword-inputWrapper">
               <img className="ForgotPassword-emailIcon" src={EmailIcon} alt="" />
               <input
@@ -138,16 +106,14 @@ const ForgotPassword = () => {
                 placeholder="Enter Email address"
                 value={email}
                 onChange={handleChange}
-                aria-invalid={!!error}
+                aria-invalid={Boolean(error)}
               />
             </div>
-
             {error && (
               <p className="ForgotPassword-error" role="alert">
                 {error}
               </p>
             )}
-
             {success && (
               <p className="ForgotPassword-success" role="status">
                 Reset link sent! Please check your email.
